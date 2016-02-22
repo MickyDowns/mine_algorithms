@@ -1,0 +1,157 @@
+KMeans
+========================================================
+
+### Clustering cluster.csv
+
+Use kmeans() w/ default values to find the k=2 solution for the 2-dimensional data cluster.csv
+
+
+```{r}
+setwd("./data")
+data<-read.csv("cluster.csv",header=F)
+setwd("../")
+```
+
+Plot initial data.
+
+```{r fig.width=7, fig.height=6}
+plot(data)
+```
+
+Cluster: kmeans() produces centers, cluster assignments, etc.
+
+```{r}
+fit<-kmeans(data,2)
+fit
+fit$centers
+```
+
+Plot: Key here is to use kmeans() output rather than moving data around. 
+
+```{r fig.width=7, fig.height=6}
+plot(data$V1,data$V2,col=fit$cluster)
+points(fit$centers,col=c("black","red"),pch=19)
+```
+
+### Clustering sonar
+
+Use kmeans() w/ default values to find the k=2 solution for the 2-dimensional sonar data.
+
+
+```{r}
+setwd("./data")
+train<-read.csv("sonar_train.csv",header=F)
+test<-read.csv("sonar_test.csv",header=F)
+setwd("../")
+```
+
+Plot just the first two columns of the sonar data.
+
+```{r}
+plot(train[,1:2])
+```
+
+Cluster: kmeans() can use as many attributes as you want. But, let's look at the clusters created by the first two. 
+
+```{r}
+fit<-kmeans(train[,1:2],2)
+fit
+```
+
+Plot: Key here is to use kmeans() output rather than moving data around. 
+
+```{r fig.width=7, fig.height=6}
+plot(train[,1:2],col=fit$cluster)
+points(fit$centers,col="blue",pch=19)
+```
+
+### Compare sonar clusters to actual class labels??
+
+
+```{r fig.width=7, fig.height=6}
+plot(train[,1:2],pch=19,xlab=expression(x[1]),
+     ylab=expression(x[2]))
+## get your y labels
+y<-train[,61]
+## re-plot points with color based on class labels.
+points(train[,1:2],col=2+2*y,pch=19)
+```
+
+### Compute the misclass error
+
+What if we used kmeans() to classify. What would our misclass error be?
+
+
+```{r}
+## transform cluster labels (1's and 2's) to -1s and 1s
+sum(fit$cluster*2-3==y)/length(y)
+
+```
+
+### Try it for all 60 columns
+
+```{r}
+fit<-kmeans(train[,1:60],2)
+sum(fit$cluster*2-3==y)/length(y)
+sum(fit$cluster*2-3!=y)/length(y)
+```
+
+Try w/ more centroids. Disaster.
+
+```{r}
+fit<-kmeans(train[,1:60],10)
+sum(fit$cluster*2-3==y)/length(y)
+sum(fit$cluster*2-3!=y)/length(y)
+```
+
+Gist: kmeans() is a good clustering tool. Not a good prediction tool.
+
+### What is kmeans doing? 
+
+First code it manually. 
+
+```{r}
+x<-c(1,2,3,5,6,7,8)
+center1<-1
+center2<-2
+
+for (k in 2:10) {
+     cluster1<-x[abs(x-center1[k-1])<=abs(x-center2[k-1])]
+     ## Put in cluster1 all x's where distance to c1<= distance to c2.
+     cluster2<-x[abs(x-center1[k-1])>abs(x-center2[k-1])]
+     ## Put in c2 all x's where distance to c1>distance to c2
+     
+     center1[k]<-mean(cluster1)
+     center2[k]<-mean(cluster2)
+     ## apparently mean() will take the mean between of all values in a cluster.
+     ## set k=2. Decrement it 1 to control iteration. Also use it to track the updates clusters. 
+}
+
+center1
+center2
+cluster1
+cluster2
+```
+
+Compare to kmeans()
+
+```{r}
+x<-c(1,2,3,5,6,7,8)
+
+fit<-kmeans(x,2)
+
+plot(x,col=fit$cluster)
+```
+
+### Calc distances
+
+```{r}
+x1<-c(2,2)
+x2<-c(5,7)
+
+data<-matrix(c(x1,x2),nrow=2,byrow=T)
+data
+
+dist(data)
+```
+

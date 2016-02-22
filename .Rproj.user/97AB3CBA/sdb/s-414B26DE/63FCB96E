@@ -1,0 +1,17 @@
+{
+    "contents" : "hw4p5\n========================================================\n\n### Load files / libraries\n\n```{r}\nlibrary(randomForest)\n\nsetwd(\"./data\")\ntrain<-read.csv(\"sonar_train.csv\",header=F)\ntest<-read.csv(\"sonar_test.csv\",header=F)\nsetwd(\"../\")\n```\n\n### Format training data set. Fit model. Calculate training error. \n\n```{r}\ny_train<-as.factor(train[,61])\nx_train<-train[,1:60]\n\nfit<-randomForest(x_train, y_train, )\n\n1-sum(y_train==predict(fit,x_train))/length(y_train)\n```\n",
+    "created" : 1406764445277.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2766931511",
+    "id" : "63FCB96E",
+    "lastKnownWriteTime" : 1407554228,
+    "path" : "~/stats202lectureR/hw4p5.Rmd",
+    "project_path" : "hw4p5.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

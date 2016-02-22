@@ -1,0 +1,17 @@
+{
+    "contents" : "Support Vector Machines\n========================================================\n\n## 1 of 2: Exercise #35: Use SVM on sonar data. \n\n```{r}\nlibrary(e1071)\n```\n\nSame basic initialization of data. \n\n```{r}\nsetwd(\"./data\")\ntrain<-read.csv(\"sonar_train.csv\",header=F)\ntest<-read.csv(\"sonar_test.csv\",header=F)\nsetwd(\"../\")\n\ny<-as.factor(train[,61])\nx<-train[,1:60]\n```\n\nFit model using svm() defaults. Check resulting fit. \n\n```{r}\nfit<-svm(x,y)\n## fit an svm trained on x with class labels y.\n\nfit\n## like knn() fit doesn't give predictions directly.\n## gives kernel used: \"radial\" implying it did some basic transforms.\n## cost or (C) = 1\nfit$cost\n## gamma (a kernel parm) = 0.167\n## nu parameter is k\nfit$nu\n\ny==predict(fit,x)\n## y==predict(fit,x) give us all instances where our prediction fit the train y.\n\n1-sum(y==predict(fit,x))/length(y)\n## .015 test error. Not that interesting b/c we evaluated fit on training data. \n```\n\nSo, let's use the model on the test data. \n```{r}\ny_test<-as.factor(test[,61])\nx_test<-test[,1:60]\n\n1-sum(y_test==predict(fit,x_test))/length(y_test)\n## 0.13 test error. Pretty good SVM out of the box. Better than trees and knn.\n```\n\n## 2 of 2: Exercise #36: toy data.\n\n```{r}\nx1<-c(0,0.8,0.4,0.3,0.1,0.7,0.5,0.8,0.8,0.8)\nx2<-c(0.1,0.9,0.5,0.7,0.4,0.3,0.2,0.6,0,0.3)\nx<-cbind(x1,x2)\ny<-as.factor(c(-1,-1,-1,-1,-1,1,1,1,1,1))\n```\n\nStart the plot.\n\n```{r}\nplot(x,pch=19,xlim=c(0,1),ylim=c(0,1),col=2*as.numeric(y),cex=2,\n     xlab=expression(x[1]),ylab=expression(x[2]))\n## col convention is just saying set color based on the 1/-1 status of y var.\n## expression(y[x]) does the subscripts. \n```\n\nUse svm() with kernel=\"linear\" and cost=100000 (so cost is very high for any miss class) to fit the toy 2D data below. Provide a plot of the resulting class rule. \n\n```{r}\nfit<-svm(x=x,y=y,kernel=\"linear\",cost=100000)\n\n1-sum(y==predict(fit,x))/length(y)\n```\n\nSo, to visualize classification, generate a lot of numbers, run them thru your model, and color the output based on the label (class) prediction. \n\n```{r}\nbig_x<-matrix(runif(200000),ncol=2,byrow=T)\n\nplot(big_x,col=rgb(0.5,0.5,0.2+0.6*as.numeric(predict(fit,big_x)==1)),pch=19)\npoints(x,pch=19,xlim=c(0,1),ylim=c(0,1),col=2*as.numeric(y),cex=2,\n     xlab=expression(x[1]),ylab=expression(x[2]))\n```",
+    "created" : 1407868215575.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2292834465",
+    "id" : "CE189C82",
+    "lastKnownWriteTime" : 1407870232,
+    "path" : "~/stats202lectureR/sVM.Rmd",
+    "project_path" : "sVM.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

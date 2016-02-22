@@ -1,0 +1,17 @@
+{
+    "contents" : "## HW3 problem 6.\n\nFor Sonar, plot training and the test errors as a function of tree depth. Use rpart() with default values except control=rpart.control(minsplit=0,minbucket=0,cp=-1, maxcompete=0, maxsurrogate=0, usesurrogate=0, xval=0,**maxdepth=dep**). Provide legend, label axes, and include name in the title. **What dep is optimal for test error?**\n\n### Load sonar datasets\n\n```{r}\nlibrary(rpart)\n\nsetwd(\"./data\")\n\ntrain<-read.csv(\"sonar_train.csv\",header=F)\ntest<-read.csv(\"sonar_test.csv\",header=F)\n\nsetwd(\"../\")\n\ny<-as.factor(train[,61])\nx<-train[,1:60]\n\ny_test<-as.factor(test[,61])\nx_test<-test[,1:60] \n```\n\n### Run model for tree depths saving training and test errors. \n\n```{r}\nerrors<-matrix(data=NA,nrow=6,ncol=3)\n\nfor(dep in 1:6){\n     errors[dep,1]<-dep\n     fit<-rpart(y~.,x,control=rpart.control(minsplit=0,minbucket=0,cp=-1,maxcompete=0,\n                                            xval=0,maxdepth=dep,)) \n     \n     errors[dep,2]<-sum(y!=predict(fit,x,type=\"class\"))/length(y)\n     errors[dep,3]<-sum(y_test!=predict(fit,x_test,\n                                      type=\"class\"))/length(y_test)\n     }\n```\n\n### Output graph\n\n```{r}\nplot(errors[,2]~errors[,1],type=\"l\",col=\"blue\",\n     main=\"Train & Test Error Rates vs. Tree Depth (Michael Downs)\",\n     xlab=\"tree depth\",ylab=\"error rate\",ylim=c(0,0.4),lwd=3)\n\nlines(errors[,3]~errors[,1],type=\"l\",col=\"red\",lwd=3)\n\nlegend(\"bottomleft\",col=c(\"blue\",\"red\"),lwd=3,legend=c(\"training error\",\"test error\"))\n```\n\n### Answer question\n\n```{r}\nminVal<-errors[which.min(errors[,3]),3]\nminDep<-errors[which.min(errors[,3]),1]\nprint(c(\"Lowest test error of \",round(minVal,3),\"and tree depth of \",minDep))\n```",
+    "created" : 1406681391731.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4160823266",
+    "id" : "D4BA29DC",
+    "lastKnownWriteTime" : 1406687177,
+    "path" : "~/stats202lectureR/hw3-p6.Rmd",
+    "project_path" : "hw3-p6.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

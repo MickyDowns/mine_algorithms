@@ -1,0 +1,103 @@
+Decision Tree code/examples
+========================================================
+
+This is an R Markdown document tracks R examples, exercises used in Stats202 lectures.
+
+# Decision trees
+
+Function "rpart" generated decision trees in R. Does classification and regression. For classification, ensure rpart() knows you're predicting (y) a factor, not numeric, variable.
+```{r}
+library(rpart)
+```
+
+## In class exercise #25
+
+Read sonar datasets of 60 attr and 100 obs.
+
+```{r}
+setwd("./data")
+##download.file("nice redirects google","sonar_train.csv", method="curl")
+##download.file("https://sites.google.com/site/stats202/data/sonar_train.csv",
+##              "sonar_test.csv",method="curl")
+
+train<-read.csv("sonar_train.csv",header=F)
+test<-read.csv("sonar_test.csv",header=F)
+
+setwd("../")
+```
+
+Fit a decision tree to predict where obj is metal or a rock.
+
+```{r}
+## set the y var as factor for class prediction.
+y<-as.factor(train[,61])
+## set the remaining colums to be test data.
+x<-train[,1:60]
+## train model to predict y using all x.
+fit<-rpart(y~.,x)
+
+## or fit1<-rpart(as.factor(train$V61)~.,data=train)
+```
+
+How accurate did model predict y? 
+
+```{r}
+sum(y!=predict(fit,x,type="class"))/length(y)
+
+## predict(fit,x,type="class") yields what you were trying to predict e.g., column 61. 
+## So, take sum of instances where prediction != col61 and divide by total obs.
+## Yields training set error rate of 11%.
+```
+
+Let's run against test set.
+
+```{r}
+## set the y_test var as factor for class prediction.
+y_test<-as.factor(test[,61])
+## set the remaining colums to be test data.
+x_test<-test[,1:60] 
+## Note we took out building the model. 
+
+sum(y_test!=predict(fit,x_test,type="class"))/length(y_test)
+## Note: Still used original fit model. 
+## Now test error is 30%.
+```
+
+## In calss exercise #26: Toggle rpart() parms
+
+Re-train model using train set and depth = 1. Test against training test set.
+
+```{r}
+fit<-rpart(y~.,x,control=rpart.control(maxdepth=1)) 
+## check for fit on training data.
+sum(y!=predict(fit,x,type="class"))/length(y)
+```
+
+Test against test set.
+```{r}
+## check for fit using old model and new test data.
+sum(y_test!=predict(fit,x_test,type="class"))/length(y_test)
+```
+
+## In class exercise #27: Force a 6 depth tree.
+
+Need to change a number of parms to over-depth tree.
+
+```{r}
+fit<-rpart(y~.,x,control=rpart.control(minsplit=0,
+                                       minbucket=0,
+                                       cp=-1,
+                                       maxcompete=0,
+                                       xval=0,
+                                       maxdepth=6,)) 
+sum(y!=predict(fit,x,type="class"))/length(y)
+## training error 0. Overfit. 
+```
+
+Test against test set.
+
+```{r}
+## check for fit of new model using test data.
+sum(y_test!=predict(fit,x_test,type="class"))/length(y_test)
+## 0.27. Slightly better, but complex. Hard to understand. 
+```

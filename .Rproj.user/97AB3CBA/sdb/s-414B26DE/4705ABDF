@@ -1,0 +1,17 @@
+{
+    "contents" : "hw4p6b\n========================================================\n\n## Using baseline alpha\n\n### Load test and train data\n```{r load}\nsetwd(\"./data\")\ntrain<-read.csv(\"sonar_train.csv\",header=FALSE)\ntest<-read.csv(\"sonar_test.csv\",header=FALSE)\nsetwd(\"../\")\n\ny<-train[,61]\nx<-train[,1:60]\ny_test<-test[,61]\nx_test<-test[,1:60]\n```\n\n### Initialize counters\n \n```{r initialize}\niter=500\n\ntrain_error<-rep(0,iter) # Keep track of errors\ntest_error<-rep(0,iter)\nf<-rep(0,130) # 130 pts in training data\nf_test<-rep(0,78) # 78 pts in test data\n\nsumW<-rep(0,iter)\nsumW_test<-rep(0,iter)\n\nsumWnorm<-rep(0,iter)\nsumWnorm_test<-rep(0,iter)\n\npar(mfrow=(c(1,2)))\n```\n\n### Process Baseline Adboost loop\n\n```{r baseLoop}\ni<-1\nlibrary(rpart)\n\nwhile(i<=iter){\n     w<-exp(-y*f) # This is a shortcut to compute w\n     sumW[i]<-sum(w)\n     \n     w_test<-exp(-y_test*f_test)\n     sumW_test[i]<-sum(w_test)\n     \n     w<-w/sum(w)\n     sumWnorm[i]<-sum(w)\n     \n     w_test<-w_test/sum(w_test)\n     sumWnorm_test[i]<-sum(w_test)\n\n     fit<-rpart(y~.,x,w,method=\"class\")\n\n     g<--1+2*(predict(fit,x)[,2]>.5) # make -1 or 1\n     g_test<--1+2*(predict(fit,x_test)[,2]>.5)\n\n     e<-sum(w*(y*g<0))\n     \n     alpha<-.5*log ( (1-e) / e )\n\n     f<-f+alpha*g\n     f_test<-f_test+alpha*g_test\n\n     train_error[i]<-sum(1*f*y<0)/130\n     test_error[i]<-sum(1*f_test*y_test<0)/78\n\n     i<-i+1\n}\nprint(min(test_error)) # minimum test error\nprint(which.min(test_error)) # minimum test error iteration\n\nprint(test_error[iter]) # final test error\n```\n\n## Output errors graphic\n\n```{r plotBaseErrors}\n# plot log(w)\nplot(seq(1,iter),test_error,type=\"l\",ylim=c(0,0.5),ylab=\"Error Rate\",\n     xlab=\"Iterations\",lwd=2,col=\"black\",main=\"Adaboost: Sonar Train & Test Errors (MichaelDowns\")\n\nlines(train_error,lwd=2,col=\"purple\")\n\nlegend(4,0.5,c(\"Training Error\",\"Test Error\"),col=(c(\"purple\",\"black\")),lwd=2)\n```\n\n### Plot log(sum(w))\n\n```{r plotLogw}\n# plot log(w)\nplot(seq(1,iter),log(sumW_test),type=\"l\",ylab=\"Log Sum Dataset Exponential Loss (log(sum(w)))\",xlab=\"Iterations\",col=\"blue\",lwd=2,main=\"Log of Exponential Loss on Sonar Train and Test (Michael Downs)\")\n\nlines(log(sumW),lwd=2,col=\"red\")\n\nlegend(\"bottomright\",.5,c(\"test\",\"train\"),col=c(\"blue\",\"red\"),lwd=2)\n```\n",
+    "created" : 1407627265796.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3650521116",
+    "id" : "4705ABDF",
+    "lastKnownWriteTime" : 1407627306,
+    "path" : "~/stats202lectureR/hw4p6bBase.Rmd",
+    "project_path" : "hw4p6bBase.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

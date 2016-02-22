@@ -1,0 +1,169 @@
+Outliers
+========================================================
+
+## In-Class Exercise #50
+
+Alalyze exam data. Find outliers. 
+
+### Read data
+
+```{r}
+setwd("./data")
+exams<-read.csv("exams_and_names-2.csv",header=T)
+setwd("../")
+```
+
+### Using boxplot w/ interquartile range
+
+Key is using measure which is natural to the data set e.g., quartiles on distribution. Recall:
+- Box goes to 25% (Q1) and 75% (Q3)
+- Whiskers go to 1.5x Q1-Q3 range
+- Beyond that are outliers
+
+```{r fig.width=7, fig.height=6}
+with(exams,plot(Exam.1~Exam.2))
+
+par(mfrow=c(1,2))
+with(exams,boxplot(Exam.1)) # no outliers
+with(exams,boxplot(Exam.2)) # three outliers
+
+par(mfrow=c(1,1))
+boxplot(exams$Exam.1,exams$Exam.2,col="blue",main="Exam Scores",
+        names=c("exam1", "exam2"),ylab="Exam Score")
+```
+
+### Using z score
+
+```{r}
+sd1<-sd(exams$Exam.1,na.rm=T)
+sd2<-sd(exams$Exam.2,na.rm=T)
+
+exams$Exam.1.z<-(exams$Exam.1-mean(exams$Exam.1,na.rm=T))/sd1
+exams$Exam.2.z<-(exams$Exam.2-mean(exams$Exam.2,na.rm=T))/sd2
+
+# Note: default for scale is to set na.rm=T
+exams$Exam.1.scale<-scale(exams$Exam.1)
+exams$Exam.2.scale<-scale(exams$Exam.2)
+
+head(sort(exams$Exam.2.z))
+head(sort(exams$Exam.2.z,decreasing=T))
+     
+# No outliers
+```
+
+## In-Class Exercise #52
+
+Alalyze exam data. Find outliers using IQR. **Considered better than mean/sd as they are sensitive to outliers.**
+
+### Calculating / using IQR
+
+```{r}
+# 1. get 1st and 3rd quantiles
+q1<-quantile(exams$Exam.2,0.25,na.rm=T)
+q3<-quantile(exams$Exam.2,0.75,na.rm=T)
+
+# 2. calc iqr
+iqr<-q3-q1
+
+# 3. find outliers
+outliers<-exams[exams$Exam.2>=q3+(1.5*iqr) | exams$Exam.2<=q1-(1.5*iqr),]
+outliers
+# 3 outliers
+
+```
+
+### Example of why iqr better: outliers skew mean/sd
+
+```{r}
+data<-c(1,2,3,4,100)
+boxplot(data)
+# shows outliers
+
+sd3<-sd(data)
+mean1<-mean(data)
+zscores<-(data-mean1)/sd3
+zscores
+# no outliers
+```
+
+### iqr not perfect. some distributions are broad
+
+```{r}
+# example: T distribution w/ low degrees of freedom. It's just the distribution.
+boxplot(rt(50,df=1))
+```
+
+## Detecting outliers for multiple attributes
+
+### In-class #52: Using regression
+
+First use basic lm to plot regression line for the data.
+
+```{r}
+# load/clean data
+setwd("./data")
+exams<-read.csv("exams_and_names-2.csv",header=T)
+setwd("../")
+exams1<-exams[!is.na(exams[,3]),]
+
+# fit model
+fit<-lm(exams$Exam.2~exams$Exam.1)
+summary(fit)
+
+# plot results
+plot(exams$Exam.1,exams$Exam.2,pch=19,xlab="Exam 1", ylab="Exam 2", xlim=c(100,200),
+     ylim=c(100,200))
+abline(fit)
+
+# inspect residuals
+sort(fit$residuals)
+# recall that residuals are the **vertical** distance to the regression (fitted values) line. 
+```
+
+Now let's look at it scaling the dots by the size of their residual
+
+```{r}
+# load/clean data
+setwd("./data")
+exams<-read.csv("exams_and_names-2.csv",header=T)
+setwd("../")
+exams1<-exams[!is.na(exams[,3]),]
+
+# fit model
+fit2<-lm(exams1$Exam.2~exams1$Exam.1)
+
+# plot results
+plot(exams$Exam.1,exams$Exam.2,pch=19,xlab="Exam 1", ylab="Exam 2", xlim=c(100,200),
+     ylim=c(100,200),cex=abs(fit2$residuals)/10)
+
+abline(fit2)
+
+plot(fit2) # if you tell R to plot a model, it takes you through a series of graphs.
+```
+
+### In-class #53: Using Clustering w/ Kmeans
+
+First cluster the data
+
+```{r}
+# load data
+setwd("./data")
+data<-read.csv("exams_and_names-2.csv",header=T)
+setwd("../")
+
+# clean data taking only needed rows
+x<-data[!is.na(data[,3]),2:3]
+
+# plot the data
+plot(x,pch=19,xlab="Exam 1", ylab="Exam 2")
+
+# fit model
+fit<-kmeans(x,5)
+
+# plot results
+points(fit$centers,pch=19,col="blue",cex=2)
+points(x,col=fit$cluster,pch=19)
+
+```
+
+Different methods end up w/ different outliers. In this case, the lower three are considered outliers b/c they have their own cluster (whenk K is 5). The upper two are not as they fall w/in the range of the others when k=5. 

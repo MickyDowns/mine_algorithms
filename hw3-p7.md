@@ -1,0 +1,80 @@
+## HW3 P7
+
+### read records
+
+
+```r
+setwd("./data")
+results<-read.csv("hw3p7.csv",header=T)
+setwd("../")
+```
+
+### format data
+
+
+```r
+pm1<-results[,1:3]
+pm2<-results[,c(1:2,4)]
+pm1$true.class<-as.character(pm1$true.class)
+pm2$true.class<-as.character(pm2$true.class)
+
+pm1$true.class[pm1$true.class=="-"]<-0
+pm1$true.class[pm1$true.class=="+"]<-1
+pm2$true.class[pm2$true.class=="-"]<-0
+pm2$true.class[pm2$true.class=="+"]<-1
+
+pm1<-pm1[order(pm1$p.m1),]
+pm2<-pm2[order(pm2$p.m2),]
+
+pm1cut<-c(rep(NA,10))
+pm2cut<-c(rep(NA,10))
+pm1pred<-c(rep(NA,10))
+pm2pred<-c(rep(NA,10))
+
+pm1fpr<-c(rep(0,11))
+pm1tpr<-c(rep(0,11))
+pm2fpr<-c(rep(0,11))
+pm2tpr<-c(rep(0,11))
+```
+
+### loop thru TPR & FPR calcs
+
+
+```r
+for(i in 1:10){
+     pm1cut[i]<-(pm1$p.m1[i]-.001)
+     pm2cut[i]<-(pm2$p.m2[i]-.001)
+     
+     for(j in 1:10){
+          if(pm1$p.m1[j]>=pm1cut[i]) {pm1pred[j]<-"1"}
+          else {pm1pred[j]<-"0"}
+          if(pm2$p.m2[j]>=pm2cut[i]) {pm2pred[j]<-"1"}
+          else {pm2pred[j]<-"0"}
+          }
+     pm1tp<-sum(pm1pred==1 & pm1$true.class==pm1pred)
+     pm1tn<-sum(pm1pred==0 & pm1$true.class==pm1pred)
+     pm1fp<-sum(pm1pred==1 & pm1$true.class!=pm1pred)
+     pm1fn<-sum(pm1pred==0 & pm1$true.class!=pm1pred)
+     pm1tpr[i]<-pm1tp/(pm1tp+pm1fn)
+     pm1fpr[i]<-pm1fp/(pm1fp+pm1tn)
+     
+     pm2tp<-sum(pm2pred==1 & pm2$true.class==pm2pred)
+     pm2tn<-sum(pm2pred==0 & pm2$true.class==pm2pred)
+     pm2fp<-sum(pm2pred==1 & pm2$true.class!=pm2pred)
+     pm2fn<-sum(pm2pred==0 & pm2$true.class!=pm2pred)
+     pm2tpr[i]<-pm2tp/(pm2tp+pm2fn)
+     pm2fpr[i]<-pm2fp/(pm2fp+pm2tn)
+     }
+```
+
+### output graph
+
+
+```r
+plot(pm1fpr,pm1tpr,type="l",col="blue",lwd=3,ylab="TPR",ylim=c(0,1),xlab="FPR",
+     main="ROC Curve (Michael Downs)")
+lines(pm2fpr,pm1tpr,type="l",col="red",lwd=3)
+legend("bottomright",col=c("blue","red"),lwd=3,legend=c("M1","M2"))     
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 

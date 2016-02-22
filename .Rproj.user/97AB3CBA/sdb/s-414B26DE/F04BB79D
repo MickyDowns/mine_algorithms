@@ -1,0 +1,17 @@
+{
+    "contents" : "KNN\n========================================================\n\n## In class exercise #34.\n\nUse knn() to fit the 1NN classifier to the last column of the sonar traiing data. \n\n```{r}\nsetwd(\"./data\")\n##download.file(\"nice redirects google\",\"sonar_train.csv\", method=\"curl\")\n##download.file(\"https://sites.google.com/site/stats202/data/sonar_train.csv\",\n##              \"sonar_test.csv\",method=\"curl\")\n\ntrain<-read.csv(\"sonar_train.csv\",header=F)\ntest<-read.csv(\"sonar_test.csv\",header=F)\n\nsetwd(\"../\")\n```\n\nLoad libraries. \n\n```{r}\nlibrary(class)\n```\n\nUsing default values. \n\n```{r}\n## set the y var as factor for class prediction.\ny<-as.factor(train[,61])\n## set the remaining colums to be test data.\nx<-train[,1:60]\n## train model to predict y using all x.\nfit<-knn(train=x,test=x,cl=y,k=1)\n## Note: both train and test parms use the same, in this case, train data set. This \n## gives the training misclass error.\n```\n\nAssess fit on training data. (Really silly b/c you're using the training data to  predict itself. Further, w/ k=1 it's not doing any real fitting.)\n\n```{r}\nfit\n## fit give the predicted class labels of the training data.\n\n1-sum(y==fit)/length(y)\n## sum(y==fit) gives the number of times your prediction (fit) matched your actual\n## class label (y). So, this gives the overall accuracy (1-that pct) or the overall \n## error rate. Zero in this case. \n```\n\nCompute the misclass error on the training and test data. \n\n```{r}\ny_test<-as.factor(test[,61])\nx_test<-test[,1:60]\n\nfit_test<-knn(x,x_test,y,k=1)\n\n1-sum(y_test==fit_test)/length(y_test)\n## how often does my predicted test lables (fit) = my true test labels (y_test)\n## 0.21\n```\n\nSo, when k=1, train error = 0, test error = 0.21... slightly better than decision trees. Not bad w/ 60 dimension data. \n\nSo, let's try using k=5.\n\n```{r}\nfit_test<-knn(x,x_test,y,k=5)\n\n1-sum(y_test==fit_test)/length(y_test)\n## 0.23\n```\n\nCould be we're generalizing away from the signal. k=3.\n\n```{r}\nfit_test<-knn(x,x_test,y,k=3)\n\n1-sum(y_test==fit_test)/length(y_test)\n## 0.18\n```\n\nk=3 looks like balance between over-fitting (k=1) and over-generalizing (k=5). Now would be a good time to bring in another test data set. ",
+    "created" : 1407536893484.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2234216127",
+    "id" : "F04BB79D",
+    "lastKnownWriteTime" : 1406324232,
+    "path" : "~/stats202lectureR/nearNeigh.Rmd",
+    "project_path" : "nearNeigh.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

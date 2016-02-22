@@ -1,0 +1,17 @@
+{
+    "contents" : "hw4q3\n========================================================\n\n## q3a\n\n### Load data\n\n```{r}\nlibrary(e1071)\n\nx1<-c(0,0.8,0.4,0.3,0.1,0.7,0.5,0.8,0.8,0.8)\nx2<-c(0.1,0.9,0.5,0.7,0.4,0.3,0.2,0.6,0,0.3)\nx<-cbind(x1,x2)\ny<-as.factor(c(-1,-1,-1,-1,-1,1,1,1,1,1))\n```\n\n### Start plot\n\n```{r}\nplot(x,pch=19,xlim=c(0,1),ylim=c(0,1),col=2*as.numeric(y),cex=2,\n     xlab=expression(x[1]),ylab=expression(x[2])) \n```\n\n### Fit model\n\nUse svm() with kernel=\"linear\" and cost=100000 to fit the toy 2D data below. Provide a plot of the resulting class rule. \n\n```{r}\nfit<-svm(x=x,y=y,kernel=\"linear\",cost=100000)\n\n1-sum(y==predict(fit,x))/length(y)\n```\n\n### Color sections\n\nTo visualize classification, generate numbers, run them thru model, and color the output based on the label (class) prediction. \n\n```{r}\nbig_x<-matrix(runif(200000),ncol=2,byrow=T)\n\nplot(big_x,col=rgb(0.5,0.5,0.2+0.6*as.numeric(predict(fit,big_x)==1)),pch=19)\npoints(x,pch=19,xlim=c(0,1),ylim=c(0,1),col=2*as.numeric(y),cex=2,\n     xlab=expression(x[1]),ylab=expression(x[2]))\n\nabline(-0.05,1,lwd=6)\n```\n\n```{r}\nx<-function(k1,k2){\n     \n}",
+    "created" : 1406328030621.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1616397073",
+    "id" : "1D91D2D5",
+    "lastKnownWriteTime" : 1407651034,
+    "path" : "~/stats202lectureR/hw4q3.Rmd",
+    "project_path" : "hw4q3.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}

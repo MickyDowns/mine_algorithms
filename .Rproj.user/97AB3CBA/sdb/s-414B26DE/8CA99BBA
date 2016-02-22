@@ -1,0 +1,17 @@
+{
+    "contents" : "## HW3 P7\n\n### read records\n\n```{r}\nsetwd(\"./data\")\nresults<-read.csv(\"hw3p7.csv\",header=T)\nsetwd(\"../\")\n```\n\n### format data\n\n```{r}\npm1<-results[,1:3]\npm2<-results[,c(1:2,4)]\npm1$true.class<-as.character(pm1$true.class)\npm2$true.class<-as.character(pm2$true.class)\n\npm1$true.class[pm1$true.class==\"-\"]<-0\npm1$true.class[pm1$true.class==\"+\"]<-1\npm2$true.class[pm2$true.class==\"-\"]<-0\npm2$true.class[pm2$true.class==\"+\"]<-1\n\npm1<-pm1[order(pm1$p.m1),]\npm2<-pm2[order(pm2$p.m2),]\n\npm1cut<-c(rep(NA,10))\npm2cut<-c(rep(NA,10))\npm1pred<-c(rep(NA,10))\npm2pred<-c(rep(NA,10))\n\npm1fpr<-c(rep(0,11))\npm1tpr<-c(rep(0,11))\npm2fpr<-c(rep(0,11))\npm2tpr<-c(rep(0,11))\n```\n\n### loop thru TPR & FPR calcs\n\n```{r}\nfor(i in 1:10){\n     pm1cut[i]<-(pm1$p.m1[i]-.001)\n     pm2cut[i]<-(pm2$p.m2[i]-.001)\n     \n     for(j in 1:10){\n          if(pm1$p.m1[j]>=pm1cut[i]) {pm1pred[j]<-\"1\"}\n          else {pm1pred[j]<-\"0\"}\n          if(pm2$p.m2[j]>=pm2cut[i]) {pm2pred[j]<-\"1\"}\n          else {pm2pred[j]<-\"0\"}\n          }\n     pm1tp<-sum(pm1pred==1 & pm1$true.class==pm1pred)\n     pm1tn<-sum(pm1pred==0 & pm1$true.class==pm1pred)\n     pm1fp<-sum(pm1pred==1 & pm1$true.class!=pm1pred)\n     pm1fn<-sum(pm1pred==0 & pm1$true.class!=pm1pred)\n     pm1tpr[i]<-pm1tp/(pm1tp+pm1fn)\n     pm1fpr[i]<-pm1fp/(pm1fp+pm1tn)\n     \n     pm2tp<-sum(pm2pred==1 & pm2$true.class==pm2pred)\n     pm2tn<-sum(pm2pred==0 & pm2$true.class==pm2pred)\n     pm2fp<-sum(pm2pred==1 & pm2$true.class!=pm2pred)\n     pm2fn<-sum(pm2pred==0 & pm2$true.class!=pm2pred)\n     pm2tpr[i]<-pm2tp/(pm2tp+pm2fn)\n     pm2fpr[i]<-pm2fp/(pm2fp+pm2tn)\n     }\n```\n\n### output graph\n\n```{r}\nplot(pm1fpr,pm1tpr,type=\"l\",col=\"blue\",lwd=3,ylab=\"TPR\",ylim=c(0,1),xlab=\"FPR\",\n     main=\"ROC Curve (Michael Downs)\")\nlines(pm2fpr,pm1tpr,type=\"l\",col=\"red\",lwd=3)\nlegend(\"bottomright\",col=c(\"blue\",\"red\"),lwd=3,legend=c(\"M1\",\"M2\"))     \n```\n",
+    "created" : 1406691061394.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2532834519",
+    "id" : "8CA99BBA",
+    "lastKnownWriteTime" : 1406740825,
+    "path" : "~/stats202lectureR/hw3-p7.Rmd",
+    "project_path" : "hw3-p7.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}
